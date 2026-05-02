@@ -35,7 +35,7 @@ end
 % Establish connection
 a = arduino("COM5", "Uno");
 
-duration = 600;
+duration = 30;
 
 % Creating the array
 
@@ -68,6 +68,26 @@ title('Temperature against Time'); % headline
 % print recorded data
 dateRecorded = datestr(now, 'dd/mm/yyyy');
 location = 'Nottingham';
+outputText = sprintf('Data logging initiated - %s\nLocation - %s\n\n', dateRecorded, location);
+
+% use outputText=[outputText, new content] to add content on previous
+
+for minute = 0:10
+
+    numb = minute * 60 + 1; % transform minutes to number of temp data, add 1 each because matlab array starts at 1
+
+    outputText = [outputText, sprintf('Minute\t%d\n', minute)];
+    outputText = [outputText, sprintf('Temperature\t%.2f C\n\n', temperature(numb))];
+
+end
+
+outputText = [outputText, sprintf('Max temp %.2f C\n', maxTemp)];
+outputText = [outputText, sprintf('Min temp %.2f C\n', minTemp)];
+outputText = [outputText, sprintf('Average temp %.2f C\n\n', avgTemp)];
+outputText = [outputText, sprintf('Data logging terminated\n')];
+
+fprintf('%s', outputText);
+
 %% TASK 2 - LED TEMPERATURE MONITORING DEVICE IMPLEMENTATION [25 MARKS]
 
 % Insert answers here
