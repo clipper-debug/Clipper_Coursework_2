@@ -35,7 +35,7 @@ end
 % Establish connection
 a = arduino("COM5", "Uno");
 
-duration = 40;
+duration = 600;
 
 % Creating the array
 
