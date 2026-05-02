@@ -35,7 +35,7 @@ end
 % Establish connection
 a = arduino("COM5", "Uno");
 
-duration = 30;
+duration = 600;
 
 % Creating the array
 
@@ -72,7 +72,7 @@ outputText = sprintf('Data logging initiated - %s\nLocation - %s\n\n', dateRecor
 
 % use outputText=[outputText, new content] to add content on previous
 
-for minute = 0:10
+for minute = 0:floor(duration/60)
 
     numb = minute * 60 + 1; % transform minutes to number of temp data, add 1 each because matlab array starts at 1
 
