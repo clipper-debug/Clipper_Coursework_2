@@ -35,7 +35,7 @@ end
 % Establish connection
 a = arduino("COM5", "Uno");
 
-duration = 10;
+duration = 600;
 
 % Creating the array
 
@@ -59,13 +59,15 @@ maxTemp = max(temperature);
 minTemp = min(temperature);
 avgTemp = mean(temperature);
 
-% testing
+% create the plot
+plot(time, temperature);
+xlabel('Time (s)'); % creating label for x axies
+ylabel('Temperature (°C)'); % same
+title('Temperature against Time'); % headline
 
-fprintf('\nMax temperature = %.2f C\n', maxTemp);
-fprintf('Min temperature = %.2f C\n', minTemp);
-fprintf('Average temperature = %.2f C\n', avgTemp);
-
-disp('Task 1 finished');
+% print recorded data
+dateRecorded = datestr(now, 'dd/mm/yyyy');
+location = 'Nottingham';
 %% TASK 2 - LED TEMPERATURE MONITORING DEVICE IMPLEMENTATION [25 MARKS]
 
 % Insert answers here
