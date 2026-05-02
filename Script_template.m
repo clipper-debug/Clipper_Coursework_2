@@ -35,7 +35,7 @@ end
 % Establish connection
 a = arduino("COM5", "Uno");
 
-duration = 600;
+duration = 40;
 
 % Creating the array
 
@@ -88,6 +88,25 @@ outputText = [outputText, sprintf('Data logging terminated\n')];
 
 fprintf('%s', outputText);
 
+% write the data into text log file
+file_id = fopen('capsule_temperature.txt', 'w');
+
+% Write outputText into the text file
+fprintf(file_id, '%s', outputText);
+
+% Close the file to save it
+fclose(file_id);
+
+% Open the generated file to check the written data
+file_id = fopen('capsule_temperature.txt', 'r');
+
+fileContent = fscanf(file_id, '%c');
+
+fclose(file_id);
+
+% Display the content read from the file
+disp('Content of capsule_temperature.txt:');
+disp(fileContent);
 %% TASK 2 - LED TEMPERATURE MONITORING DEVICE IMPLEMENTATION [25 MARKS]
 
 % Insert answers here
