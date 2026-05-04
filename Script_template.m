@@ -111,7 +111,8 @@ disp(fileContent);
 
 % Insert answers here
 
-
+% Call the temperature monitoring function
+temp_monitor(a);
 %% TASK 3 - ALGORITHMS – TEMPERATURE PREDICTION [30 MARKS]
 
 % Insert answers here
