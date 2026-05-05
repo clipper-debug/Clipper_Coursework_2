@@ -7,6 +7,12 @@
 % increases faster than 4 C/min. The yellow LED is ON when temperature
 % decreases faster than 4 C/min.
 % Input: a - Arduino object created in the main coursework script.
+% Update: use average temperature data to smooth the prediction
+% Test text:
+% clear;
+% clc;
+% a = arduino("COM5", "Uno");
+% temp_prediction(a);
 
 function temp_prediction(a)
 
@@ -15,13 +21,20 @@ timeData = [];
 temperatureData = [];
 timeCounter = 0;
 
-% Define temperature range and rate limit
+% Define temperature range and rate limit, so i can use it later on
 lowerLimit = 18;
 upperLimit = 24;
 rateLimit = 4; % unit: C/min
 
-% Define prediction time
+% Define prediction time, so i can use it later on
 predictionTime = 300; % 5 minutes = 300 seconds
+
+% Create an emppty array to store smooth temperature data
+smoothTemperatureData = [];
+
+% Define smoothing settings
+averageNumber = 10; % use recent 10 readings to smooth temperature
+rateWindow = 30; % use about recent 30 seconds to calculate rate
 
 % Continuous prediction loop
 while true
@@ -36,20 +49,27 @@ while true
     timeData = [timeData, timeCounter];
     temperatureData = [temperatureData, temperature];
 
-    % Check if there is enough data to calculate rate
-    if length(temperatureData) < 2
+    % Smooth the temperature using recent readings
+    startAveragePoint = max(1, length(temperatureData) - averageNumber + 1); % Update: 1 is for when reading number is below 10, it will cause error
+    smoothTemperature = mean(temperatureData(startAveragePoint:end)); 
 
-        % Not enough data, set rate to zero
+    % Store smoothed temperature data
+    smoothTemperatureData = [smoothTemperatureData, smoothTemperature];
+
+    % Check if there is enough data to calculate rate
+    if length(smoothTemperatureData) < rateWindow
+
+        % Not enough long-term data, so i set rate to zero
         rate_s = 0;
 
     else
 
         % Use recent data to reduce the effect of noise
         % Use about the last 10 seconds of data if available
-        oldPoint = max(1, length(temperatureData) - 10);
+        oldPoint = max(1, length(smoothTemperatureData) - rateWindow + 1);
 
         % Calculate temperature difference
-        tempChange = temperatureData(end) - temperatureData(oldPoint);
+        tempChange = smoothTemperatureData(end) - smoothTemperatureData(oldPoint);
 
         % Calculate time difference
         timeChange = timeData(end) - timeData(oldPoint);
@@ -68,11 +88,12 @@ while true
     rate_min = rate_s * 60;
 
     % Predict temperature after 5 minutes
-    predictedTemperature = temperature + rate_s * predictionTime;
+    predictedTemperature = smoothTemperature + rate_s * predictionTime;
 
     % Display current information in command window
     fprintf('Current temperature: %.2f C\n', temperature);
-    fprintf('Temperature change rate: %.4f C/s\n', rate_s);
+    fprintf('Smoothed temperature: %.2f C\n', smoothTemperature);
+    fprintf('Temperature change rate: %.2f C/min\n', rate_min);
     fprintf('Predicted temperature in 5 minutes: %.2f C\n\n', predictedTemperature);
 
     % LED control according to temperature change rate
@@ -90,14 +111,14 @@ while true
         writeDigitalPin(a, 'A2', 1);
         writeDigitalPin(a, 'A3', 0);
 
-    elseif temperature >= lowerLimit && temperature <= upperLimit
+    elseif smoothTemperature >= lowerLimit && smoothTemperature <= upperLimit
 
         % Stable and within comfort range: green LED constant ON
         writeDigitalPin(a, 'A1', 1);
         writeDigitalPin(a, 'A2', 0);
         writeDigitalPin(a, 'A3', 0);
 
-    elseif temperature < lowerLimit
+    elseif smoothTemperature < lowerLimit
 
         % Temperature is too low but not changing too quickly
         writeDigitalPin(a, 'A1', 0);
